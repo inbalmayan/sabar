@@ -639,10 +639,12 @@ defK('rounds','סבבים פעילים (נכון להיום)',y=>snap(y,()=>live
 defK('instr','מדריכים משתתפים',y=>snap(y,()=>cnt(live(DB.instructors).filter(r=>r.active))),y=>drillEnt('סגל הדרכה','instructors',()=>live(DB.instructors).filter(r=>r.active),{sub:'פעילות ההכשרה נתמכת על ידי המטה, ההנהגה הקלינית וצוותים משתתפים בשטח, ללא תשתית הוראה ייעודית.',cols:['name','group','role','academicSt','traineesCount'],add:{ent:'instructors',def:{active:true}}}));
 defK('affil','שיוכים אקדמיים',y=>snap(y,()=>cnt(live(DB.instructors).filter(r=>r.academicSt==='יש'))),y=>drillEnt('שיוכים אקדמיים','instructors',()=>live(DB.instructors).filter(r=>['יש','בתהליך','פוטנציאל'].includes(r.academicSt)),{sub:'רופאים ואחיות בעלי שיוך אקדמי, או עם פוטנציאל לכך. המדד הראשי סופר רק שיוך קיים.',empty:PEND+' — טרם הוזן שיוך אקדמי לאנשי הסגל.',cols:['name','role','academicSt','academicInst']}));
 defK('partners','מוסדות שותפים',y=>snap(y,()=>live(DB.insts).filter(i=>i.status==='שותף'&&instData(i).r>0).length),y=>drillEnt('מוסדות שותפים במחקר','insts',()=>live(DB.insts).filter(i=>i.status==='שותף'&&instData(i).r>0),{sub:'לחיצה על מוסד פותחת את עמוד השותפות המלא שלו.',cols:INST_COLS(),open:i=>{closeAll();go('inst/'+i.id)},add:{ent:'insts',def:{status:'שותף'}}}));
+/* actual visits by the palliative resident up to 7.10.2026 (real data), 300 NIS per visit */
+const PAL={n:138,per:300};
 const TCATS=[
  {k:'cj',l:'מתמחי כללית ירושלים',typ:'מגיעים לחצי שנה · בממוצע מטופל וחצי בחודש',pm:1.5,f:r=>TKEY[r.type]==='fam'&&r.sendingInst==='כללית ירושלים',add:{type:'מתמחה ברפואת משפחה',sendingInst:'כללית ירושלים',status:'פעיל'}},
  {k:'famOth',l:'מתמחי רפואת משפחה ומתמחים אחרים',typ:'מכבי, מאוחדת ורוטציות אחרות',f:r=>(TKEY[r.type]==='fam'&&r.sendingInst!=='כללית ירושלים')||TKEY[r.type]==='oth',add:{type:'מתמחה ברפואת משפחה',status:'פעיל'}},
- {k:'pal',l:'מתמחים ברפואה פליאטיבית',typ:'בממוצע 15 מטופלים בחודש · כ-4 חודשים',pm:15,f:r=>TKEY[r.type]==='pal',add:{type:'מתמחה ברפואה פליאטיבית',status:'פעיל'}}];
+ {k:'pal',l:'מתמחים ברפואה פליאטיבית',typ:'ביקורי בית שבוצעו בפועל',pm:15,f:r=>TKEY[r.type]==='pal',add:{type:'מתמחה ברפואה פליאטיבית',status:'פעיל'}}];
 TCATS.filter(c=>c.k!=='pal').forEach(c=>defK(c.k,c.l,y=>tc(trIn(y).filter(c.f)),y=>drillEnt(`${c.l} ${y}`,'trainees',()=>trIn(y).filter(c.f),{sub:'סבבים פעילים או שהסתיימו שחופפים לשנה הנבחרת.',cols:['name','sendingInst','start','end',{l:`חודשים ב-${y}`,r:r=>r1(ovMonths(r,y)),s:r=>ovMonths(r,y)},'status'],empty:'אין סבבים בקטגוריה זו בשנה זו.',add:{ent:'trainees',def:c.add}})));
 const LINK={l:'DOI / PubMed',r:r=>{const out=[];if(r.doi)out.push(h('a',{href:'https://doi.org/'+r.doi,target:'_blank',rel:'noopener',onclick:e=>e.stopPropagation()},h('bdi',{dir:'ltr'},'DOI')));if(r.pmid)out.push(h('a',{href:'https://pubmed.ncbi.nlm.nih.gov/'+r.pmid,target:'_blank',rel:'noopener',onclick:e=>e.stopPropagation()},h('bdi',{dir:'ltr'},'PubMed')));return out.length?out.flatMap((x,i)=>i?[' · ',x]:[x]):h('span',{class:'dash'},'—')}};
 function INST_COLS(){return['name','type',{l:'מחקרים',r:i=>instData(i).r},{l:'הכשרה / קשר מקצועי',r:i=>instData(i).t},'next']}
@@ -875,7 +877,7 @@ function pagePlan(){
  const mo26=c=>r1(trIn(2026).filter(c.f).reduce((a,r)=>a+ovMonths(r,2026),0));
  const cjC=TCATS.find(c=>c.k==='cj'),foC=TCATS.find(c=>c.k==='famOth'),plC=TCATS.find(c=>c.k==='pal');
  const cjM=mo26(cjC),foM=mo26(foC),plM=mo26(plC),plN=trIn(2026).filter(plC.f).length;
- const profPal=Math.round(plM*15*900),profCJ=Math.round(cjM*1.5*900),payFO=Math.round(foM*10*150),payPal=plN*10*150;
+ const profPal=PAL.n*PAL.per,profCJ=Math.round(cjM*1.5*900),payFO=Math.round(foM*10*150),payPal=plN*10*150;
  const shk=n=>'₪'+num(Math.round(n),0);
   const axis=(n,title,goal,...c)=>h('section',{class:'axis a'+n,id:'ax'+n},h('div',{class:'axh'},h('span',{class:'axn'},n),h('div',{},h('h2',{},title),h('p',{class:'axg'},goal))),...c);
  const jump=n=>()=>{const e=document.getElementById('ax'+n);if(e)e.scrollIntoView({behavior:'smooth',block:'start'})};
@@ -913,7 +915,7 @@ function pagePlan(){
     h('p',{style:{margin:'4px 0'}},h('b',{},'מנגנון מוצע: '),'המתמחה מצטרף לאחיות בשבועיים הראשונים. הרווח מפעילותו, יחד עם הרווח ממתמחי כללית ירושלים, מממן את תשלום 150 ₪ ליום לאחיות ולעובדות הסוציאליות. היתרה מופנית להכשרות מיוחדות לצוותים, ולא כתוספת שכר.'),
     h('p',{style:{margin:'4px 0 14px'}},badge('החלטה נדרשת','b-warn'),' אישור ייעוד הרווח לתגמול הצוותים ולהכשרות מיוחדות.'),
     dt('בדיקת היתכנות (נתוני 2026 בפועל)',tbl(['פריט','סכום'],[
-     [`רווח ממתמחה הפליאציה (${plN} מתמחה, ${num(plM,1)} חודשים × 15 מטופלים × 900 ₪)`,shk(profPal)],
+     [`רווח ממתמחה הפליאציה (${PAL.n} ביקורים בוצעו בפועל × ${PAL.per} ₪)`,shk(profPal)],
      [`רווח ממתמחי כללית ירושלים (${num(cjM,1)} חודשי הכשרה × 1.5 מטופלים × 900 ₪)`,shk(profCJ)],
      [h('b',{},'סה״כ רווח'),h('b',{},shk(profPal+profCJ))],
      [`תשלום 150 ₪ ליום תצפית, מתמחי משפחה ואחרים שאינם מכללית ירושלים (${num(foM,1)} חודשי הכשרה × 10 ימים)`,shk(payFO)],
@@ -984,9 +986,10 @@ function pageTraining(){
  w.append(h('section',{class:'card'},h('div',{class:'cgrid'},metricBlock('doctors','מתמחים ורוטציונרים · '+Y,Y),metricBlock('months','חודשי הכשרה · '+Y,Y))));
  const card=c=>{
   const fy=y=>{const L=trIn(y).filter(c.f);const mo=r1(L.reduce((a,r)=>a+ovMonths(r,y),0));const pr=c.pm?Math.round(mo*c.pm*900):null;
+   if(c.k==='pal')return h('div',{},h('div',{class:'yr'},h('span',{},y),h('span',{},`${L.length} משתתפים`)),y===2026&&L.length?h('div',{},h('div',{class:'yr'},h('span',{class:'p'},'ביקורים בוצעו בפועל'),h('span',{},PAL.n)),h('div',{class:'yr'},h('span',{class:'p'},'שווי'),h('span',{},'₪'+num(PAL.n*PAL.per,0)))):null);
    return h('div',{},h('div',{class:'yr'},h('span',{},y),h('span',{},`${L.length} משתתפים · ${mo} חודשים`)),pr!==null&&L.length?h('div',{class:'yr'},h('span',{class:'p'},'רווח מוערך'),h('span',{},'₪'+num(pr,0))):null)};
   return h('button',{class:'cat',onclick:()=>K[c.k].drill(CUR)},h('h3',{},c.l),h('div',{class:'typ'},c.typ),fy(2025),fy(2026),
-   c.pm?h('div',{class:'note',style:{margin:'8px 0 0',fontSize:'12px'}},`רווח מוערך = ${c.pm} מטופלים בחודש × 900 ₪ × חודשי הכשרה. זה מה שהיינו משלמים לרופא עבור כל מטופל במקום המתמחה.`):null)};
+   c.k==='pal'?h('div',{class:'note',style:{margin:'8px 0 0',fontSize:'12px'}},`שווי כל ביקור: ${PAL.per} ₪, לפי הביקורים שבוצעו בפועל עד 7.10.2026.`):c.pm?h('div',{class:'note',style:{margin:'8px 0 0',fontSize:'12px'}},`רווח מוערך = ${c.pm} מטופלים בחודש × 900 ₪ × חודשי הכשרה. זה מה שהיינו משלמים לרופא עבור כל מטופל במקום המתמחה.`):null)};
  w.append(h('div',{class:'catg',style:{marginTop:'14px'}},TCATS.map(card)));
  w.append(h('h3',{class:'sech2'},'כל הסבבים'));
  w.append(tableView('trainees',{cols:['name','type','sendingInst','start','end','months','status'],def:{status:'פעיל'}}));
