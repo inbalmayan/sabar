@@ -830,7 +830,7 @@ function trainingCard(Y){
  const legend=h('div',{class:'dl'},items.map(it=>h('button',{class:'dli','data-k':it.k,onclick:()=>K[it.k].drill(Y),onmouseenter:()=>it.val&&ring.api.focus(it),onmouseleave:()=>ring.api.reset()},h('i',{class:'sw',style:{background:it.color}}),h('span',{},it.label),h('b',{},K[it.k].val(Y)==null?'—':K[it.k].val(Y)))));
  return h('section',{class:'card'},h('div',{class:'ch'},h('h2',{},'הכשרה קלינית'),h('button',{class:'more',onclick:()=>go('training')},'לפירוט ←')),
   h('div',{class:'cgrid'},
-   h('div',{},metricBlock('doctors','מתמחים ורוטציונרים',Y),h('div',{class:'dvd'}),metricBlock('months','חודשי הכשרה',Y)),
+   h('div',{},metricBlock('doctors','מתמחים ורוטציונרים · '+Y,Y),h('div',{class:'dvd'}),metricBlock('months','חודשי הכשרה · '+Y,Y)),
    h('div',{class:'donutw',style:{flexDirection:'column',alignItems:'stretch'}},ring.box,legend)),
   h('button',{class:'prow',style:{marginTop:'12px',borderTop:'1px solid var(--line)'},onclick:()=>K.instr.drill(CUR)},h('span',{class:'pn'},'מדריכים משתתפים'),h('b',{style:{color:'var(--navy)',fontSize:'18px'}},fv(K.instr.val(CUR),true))))}
 const INST_ORDER=['האוניברסיטה העברית','אוניברסיטת תל אביב','אוניברסיטת בן-גוריון','אוניברסיטת חיפה','אוניברסיטת אריאל'];
@@ -956,7 +956,7 @@ function pagePipeline(){
   tableView('studies',{cols:['name','field',leadCol,'partners','stage',{l:'סטטוס משנה',r:subStatus,s:subStatus},'fundSt','blocker'],recs:()=>DB.studies.filter(x=>x.stage!=='פורסם'&&(!ui.stage||x.stage===ui.stage)&&(!ui.dept||deptOf(x)===ui.dept)),def:{...(ui.stage?{stage:ui.stage}:{}),...(ui.dept&&ui.dept!=='לא שויך'?{field:ui.dept}:{})}})));
  w.append(h('h2',{class:'sech'},'פרסומים ומימון'));
  const alt=y=>{const f=fundedPubs(y)[0];if(!f)return null;const g=live(DB.grants).find(g=>g.status==='התקבל'&&g.outputPub===f.id);return g?shortMoney(g.amount,g.cur)+' → פרסום':null};
- w.append(h('section',{class:'card'},h('div',{class:'cgrid'},metricBlock('pubs','פרסומים',CUR),metricBlock('funding','מימון חיצוני',CUR,alt))));
+ w.append(h('section',{class:'card'},h('div',{class:'cgrid'},h('div',{},metricBlock('pubs','פרסומים · סה״כ',CUR,null,{total:true,drill:allPubsDrill}),fundRow(CUR,alt)))));
  w.append(h('h3',{class:'sech2'},'רשימת הפרסומים'));
  w.append(tableView('pubs',{cols:['title','journal','pubYear','status','authors','field','partners',LINK],def:{status:'פורסם',pubYear:CUR}}));
  w.append(h('h3',{class:'sech2'},'גרנטים'));
@@ -969,7 +969,7 @@ function pageTraining(){
  const w=h('div');const Y=CUR;
  w.append(h('div',{class:'pgh'},h('div',{},h('h1',{style:{fontSize:'28px'}},'הכשרה קלינית והוראה'))));
  w.append(h('h2',{class:'sech'},'מתמחים ורוטציונרים'));
- w.append(h('section',{class:'card'},h('div',{class:'cgrid'},metricBlock('doctors','מתמחים ורוטציונרים',Y),metricBlock('months','חודשי הכשרה',Y))));
+ w.append(h('section',{class:'card'},h('div',{class:'cgrid'},metricBlock('doctors','מתמחים ורוטציונרים · '+Y,Y),metricBlock('months','חודשי הכשרה · '+Y,Y))));
  const card=c=>{
   const fy=y=>{const L=trIn(y).filter(c.f);const mo=r1(L.reduce((a,r)=>a+ovMonths(r,y),0));const pr=c.pm?Math.round(mo*c.pm*900):null;
    return h('div',{},h('div',{class:'yr'},h('span',{},y),h('span',{},`${L.length} משתתפים · ${mo} חודשים`)),pr!==null&&L.length?h('div',{class:'yr'},h('span',{class:'p'},'רווח מוערך'),h('span',{},'₪'+num(pr,0))):null)};
