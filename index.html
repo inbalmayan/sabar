@@ -393,6 +393,7 @@ html[dir=rtl] .roadrow .road svg{transform:scaleX(-1)}
 .logo.cheer .lg-roof{translate:0 -4px}
 
 
+.fp{padding:9px 0;border-bottom:1px solid var(--line)}.fph{display:flex;justify-content:space-between;align-items:baseline;gap:14px}.fph b{color:var(--navy)}.fpa{font-weight:800;color:var(--navy);white-space:nowrap}.fp .ms{margin-top:3px}.fpt{border-bottom:2px solid var(--line)}
 </style>
 </head>
 <body>
@@ -943,6 +944,7 @@ function pagePlan(){
  const w=h('div',{class:'plan'});
  const ul=L=>h('ul',{class:'pl'},L.map(x=>h('li',{},x)));
  const dt=(title,...c)=>h('details',{class:'dt'},h('summary',{},title),h('div',{class:'dtb'},...c));
+ const dto=(title,...c)=>{const d=dt(title,...c);d.open=true;return d};
  const tbl=(heads,rows,o={})=>h('div',{class:'tw'},h('table',{},h('thead',{},h('tr',{},heads.map(x=>h('th',{},x)))),h('tbody',{},rows.map((r,ri)=>h('tr',{style:{cursor:'default'},class:o.lastBold&&ri===rows.length-1?'foot':''},r.map((c,i)=>h('td',{style:i>0&&o.num?{whiteSpace:'nowrap'}:null},c)))))));
  const kpi=(label,val,tag,tagCls,sub)=>h('div',{class:'kcard'},h('div',{class:'ht-h'},h('span',{},label),badge(tag,tagCls)),h('div',{class:'kval'},val),sub?h('div',{class:'ms'},sub):null);
  const pill=t=>h('span',{class:'pill2'},t);
@@ -970,7 +972,13 @@ function pagePlan(){
     h('div',{class:'note'},'הסכומים הם אומדני תכנון לשנת 2027.')),
    h('div',{},
     dt('תפקידי רכזת המחקר והמענקים',ul(['ניהול ומעקב אחר התקדמות המחקרים בארגון, משלב ההצעה ועד הפרסום.','תיאום מול חוקרים, שותפים ומוסדות מחקר.','סיוע בתהליכי אישור אתיקה והגשת מסמכים.','איתור הזדמנויות למענקי מחקר.','בדיקת תנאי סף וקולות קוראים.','ריכוז מסמכים, תקציבים ולוחות זמנים להגשות מענקים.','תמיכה בתהליך ההגשה ובמעקב אחריו.']),h('p',{class:'ms'},'הרכזת אינה אחראית לכתיבה המדעית או לביצוע המחקר במקום החוקרים. החסם המרכזי בפעילות המחקר הוא גם זמנם של החוקרים, ולכן אין לייחס את כלל הגידול הצפוי בפרסומים להעסקת הרכזת.')),
-    dt('קרן המחקר',h('p',{},'הקרן תשמש למימון נקודתי של פעולות הנדרשות לקידום מחקרים קיימים, כגון:'),ul(['אנליזות סטטיסטיות.','עיבוד נתונים.','הוצאות מקצועיות הנדרשות לקידום מחקר ופרסום.']),h('p',{class:'ms'},'הקרן תאפשר לקדם מחקרים שכיום מתעכבים בשל היעדר מימון מוגבל וממוקד.')),
+    dto('קרן המחקר',h('p',{},'הקרן תשמש למימון נקודתי של פעולות הנדרשות לקידום מחקרים קיימים, כגון:'),ul(['אנליזות סטטיסטיות.','עיבוד נתונים.','הוצאות מקצועיות הנדרשות לקידום מחקר ופרסום.']),h('p',{class:'ms'},'הקרן תאפשר לקדם מחקרים שכיום מתעכבים בשל היעדר מימון מוגבל וממוקד.'),
+     h('h3',{class:'sech2'},'פרויקטים שממתינים למימון'),
+     h('div',{class:'fplist'},
+      h('div',{class:'fp'},h('div',{class:'fph'},h('b',{},'מחקר פגועי ראש — בניית הקוהורט המחקרי'),h('span',{class:'fpa'},'10,000 ₪')),h('div',{class:'ms'},'זמן של איש/אשת מקצועות הבריאות או סטודנט/ית לרפואה שייצור את הקוהורט מתוך המידע הרפואי')),
+      h('div',{class:'fp'},h('div',{class:'fph'},h('b',{},'מחקר משותף עם כללית דרום'),h('span',{class:'fpa'},'18,500 ₪')),h('div',{class:'ms'},'תקציב למחקר')),
+      h('div',{class:'fp fpt'},h('div',{class:'fph'},h('b',{},'סה״כ מוקצה'),h('span',{class:'fpa'},'28,500 ₪'))),
+      h('div',{class:'fp'},h('div',{class:'fph'},h('span',{},'פתוח לפרויקטים שיצוצו'),h('span',{class:'fpa'},'21,500 ₪'))))),
     dt('הערך הצפוי מההשקעה',ul(['ייצוב זרימת המחקרים העתידיים, משלב ההצעה ועד הפרסום.','האצת מחקרים קיימים.','הפחתת חסמים תפעוליים ומימוניים.','בניית תהליך שיטתי לאיתור ולהגשת מענקי מחקר.','הפחתת התלות בניהול אישי של כל שלבי המחקר.','חיזוק התשתית הארגונית למחקר לאורך זמן.']))))));
  // ===== Axis 2: clinical training =====
  w.append(axis(2,'הכשרה קלינית',G2,
